@@ -147,7 +147,7 @@ class TestSpeakerDiarizer:
 
         mock_pipeline_cls.from_pretrained.assert_called_once_with(
             "pyannote/speaker-diarization-3.1",
-            use_auth_token="hf_test123",
+            token="hf_test123",
         )
 
     @patch("meeting_intelligence.diarization.diarizer.torch")
@@ -168,7 +168,7 @@ class TestSpeakerDiarizer:
 
         mock_pipeline_cls.from_pretrained.assert_called_once_with(
             "pyannote/speaker-diarization-3.1",
-            use_auth_token=None,
+            token=None,
         )
 
     def test_get_speaker_stats(self):

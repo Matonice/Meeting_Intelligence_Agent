@@ -28,7 +28,7 @@ class SpeakerDiarizer:
         logger.info(f"Loading diarization model: {self.config.model}")
         self._pipeline = Pipeline.from_pretrained(
             self.config.model,
-            use_auth_token=self.config.huggingface_token or None,
+            token=self.config.huggingface_token or None,
         )
         if self.device == "cuda" and torch.cuda.is_available():
             self._pipeline.to(torch.device("cuda"))
