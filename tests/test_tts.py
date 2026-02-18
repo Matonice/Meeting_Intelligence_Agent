@@ -77,14 +77,17 @@ class TestSummaryNarrator:
         assert "Key points:" in text
         assert "Point 1" not in text
 
-    @patch("meeting_intelligence.tts.speaker.edge_tts")
-    def test_narrate_sync_calls_edge_tts(self, mock_edge_tts, tts_config, sample_summary, tmp_path):
+    def test_narrate_sync_calls_edge_tts(self, tts_config, sample_summary, tmp_path):
         mock_communicate = AsyncMock()
+        mock_edge_tts = MagicMock()
         mock_edge_tts.Communicate.return_value = mock_communicate
 
         narrator = SummaryNarrator(tts_config)
         output = tmp_path / "summary.mp3"
-        narrator.narrate_sync(sample_summary, output)
+
+        # Patch the import inside the narrate method
+        with patch.dict("sys.modules", {"edge_tts": mock_edge_tts}):
+            narrator.narrate_sync(sample_summary, output)
 
         mock_edge_tts.Communicate.assert_called_once()
         call_kwargs = mock_edge_tts.Communicate.call_args[1]
@@ -92,22 +95,28 @@ class TestSummaryNarrator:
         assert call_kwargs["rate"] == "+10%"
         mock_communicate.save.assert_called_once_with(str(output))
 
-    @patch("meeting_intelligence.tts.speaker.edge_tts")
-    def test_narrate_creates_parent_dirs(self, mock_edge_tts, tts_config, sample_summary, tmp_path):
-        mock_edge_tts.Communicate.return_value = AsyncMock()
+    def test_narrate_creates_parent_dirs(self, tts_config, sample_summary, tmp_path):
+        mock_communicate = AsyncMock()
+        mock_edge_tts = MagicMock()
+        mock_edge_tts.Communicate.return_value = mock_communicate
 
         narrator = SummaryNarrator(tts_config)
         output = tmp_path / "nested" / "dir" / "summary.mp3"
-        narrator.narrate_sync(sample_summary, output)
+
+        with patch.dict("sys.modules", {"edge_tts": mock_edge_tts}):
+            narrator.narrate_sync(sample_summary, output)
 
         assert output.parent.exists()
 
-    @patch("meeting_intelligence.tts.speaker.edge_tts")
-    def test_narrate_returns_path(self, mock_edge_tts, tts_config, sample_summary, tmp_path):
-        mock_edge_tts.Communicate.return_value = AsyncMock()
+    def test_narrate_returns_path(self, tts_config, sample_summary, tmp_path):
+        mock_communicate = AsyncMock()
+        mock_edge_tts = MagicMock()
+        mock_edge_tts.Communicate.return_value = mock_communicate
 
         narrator = SummaryNarrator(tts_config)
         output = tmp_path / "summary.mp3"
-        result = narrator.narrate_sync(sample_summary, output)
+
+        with patch.dict("sys.modules", {"edge_tts": mock_edge_tts}):
+            result = narrator.narrate_sync(sample_summary, output)
 
         assert result == output
