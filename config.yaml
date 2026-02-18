@@ -1,0 +1,39 @@
+pipeline:
+  device: "cpu"       # "cpu" or "cuda"
+  language: "en"      # null for auto-detect
+
+audio:
+  target_sample_rate: 16000
+  target_channels: 1
+
+vad:
+  threshold: 0.5
+  min_speech_duration_ms: 250
+  min_silence_duration_ms: 100
+
+diarization:
+  model: "pyannote/speaker-diarization-3.1"
+  min_speakers: null
+  max_speakers: null
+
+asr:
+  model_size: "large-v2"
+  compute_type: "int8"    # "float16" for GPU
+  beam_size: 5
+  word_timestamps: true
+
+llm:
+  model: "gpt-4"
+  temperature: 0.1
+  max_tokens: 4096
+
+tts:
+  enabled: false
+  voice: "en-US-AndrewNeural"
+  rate: "+0%"
+
+output:
+  directory: "./output"
+  formats:
+    - json
+    - markdown
