@@ -493,18 +493,36 @@ The config supports `${VAR_NAME}` substitution anywhere in YAML values, so you c
 
 ### Installation
 
+This project uses [uv](https://docs.astral.sh/uv/) for fast, reproducible dependency management. A `requirements.lock` file is included for pinned versions.
+
 ```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # Clone the project
 cd meeting_intelligence_agent
 
-# Install in development mode
-pip install -e ".[dev]"
+# Create a virtual environment and install all dependencies from the lockfile
+uv venv
+source .venv/bin/activate    # or .venv\Scripts\activate on Windows
+uv pip install -r requirements.lock
+
+# Install the project itself in editable mode
+uv pip install -e .
+
+# Install development dependencies (test runner, linting, type checking)
+uv pip install -e ".[dev]"
 
 # Set up API keys
 cp .env.example .env
 # Edit .env with your keys:
 #   OPENAI_API_KEY=sk-...
 #   HF_TOKEN=hf_...
+```
+
+**Regenerating the lockfile** (after changing dependencies in `pyproject.toml`):
+```bash
+uv pip compile pyproject.toml -o requirements.lock
 ```
 
 ### First Run Note
@@ -612,6 +630,8 @@ The **Markdown report** includes:
 
 ## Testing
 
+All 155 unit tests run locally with mocked external services — no API keys, model downloads, or network access required.
+
 ```bash
 # Run all tests
 pytest
@@ -619,23 +639,42 @@ pytest
 # Run with verbose output
 pytest -v
 
-# Run specific test file
+# Run a specific test file
 pytest tests/test_assembler.py -v
 
-# Run with coverage
-pytest --cov=meeting_intelligence
+# Run a specific test class or method
+pytest tests/test_pipeline.py::TestPipelineProcess::test_full_pipeline -v
+
+# Run with coverage report
+pytest --cov=meeting_intelligence --cov-report=term-missing
 
 # Skip integration tests (those requiring models/API keys)
 pytest -m "not integration"
+
+# Run only fast pure-logic tests (no mocking needed)
+pytest tests/test_models.py tests/test_cleaner.py tests/test_assembler.py tests/test_config.py -v
 ```
 
-**Test coverage** (19 tests):
-| Test File | Tests | What It Covers |
-|-----------|-------|---------------|
-| `test_assembler.py` | 6 | Temporal overlap merge, word-level splitting, edge cases |
-| `test_cleaner.py` | 6 | Disfluency removal, repeated words, normalization |
-| `test_config.py` | 3 | Default config, YAML loading, env var override |
-| `test_output.py` | 4 | JSON and Markdown output structure and content |
+### Test Suite (155 tests)
+
+| Test File | Tests | Component | Mocking |
+|-----------|-------|-----------|---------|
+| `test_models.py` | 22 | All Pydantic data models (audio, transcript, meeting) | None (pure logic) |
+| `test_loader.py` | 11 | Audio loading, validation, format normalization | `pydub.AudioSegment` |
+| `test_preprocessor.py` | 8 | Silero VAD speech detection | `torch.hub.load`, VAD utils |
+| `test_diarizer.py` | 9 | pyannote speaker diarization | `pyannote.Pipeline`, `torch` |
+| `test_asr.py` | 11 | faster-whisper ASR engine | `WhisperModel`, transcribe generator |
+| `test_assembler.py` | 6 | Transcript assembly (temporal overlap merge) | None (pure logic) |
+| `test_cleaner.py` | 6 | Disfluency removal, text normalization | None (pure logic) |
+| `test_segmenter.py` | 9 | LLM topic segmentation + time-based fallback | `LLMClient` |
+| `test_llm_client.py` | 9 | OpenAI client, structured output, token chunking | `openai.OpenAI`, `tiktoken` |
+| `test_extractor.py` | 8 | Decision + action item extraction | `LLMClient` |
+| `test_summarizer.py` | 9 | Summary generation (single-pass + map-reduce) | `LLMClient` |
+| `test_qa.py` | 8 | Q&A over transcripts | `LLMClient` |
+| `test_tts.py` | 9 | edge-tts narration | `edge_tts.Communicate` |
+| `test_pipeline.py` | 10 | Pipeline orchestrator (lazy init, skip_llm, Q&A) | All pipeline components |
+| `test_output.py` | 4 | JSON + Markdown writers | None (uses `tmp_path`) |
+| `test_config.py` | 3 | Configuration loading from YAML + env | None (uses `tmp_path`) |
 
 ---
 
