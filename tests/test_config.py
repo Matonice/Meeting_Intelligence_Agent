@@ -11,7 +11,7 @@ class TestConfig:
         assert config.pipeline.device == "cpu"
         assert config.audio.target_sample_rate == 16000
         assert config.asr.model_size == "large-v2"
-        assert config.llm.model == "gpt-4"
+        assert config.llm.model == "gpt-4o"
 
     def test_load_config_without_file(self):
         config = load_config(Path("/nonexistent/config.yaml"))
@@ -33,4 +33,4 @@ asr:
         assert config.asr.model_size == "small"
         assert config.asr.beam_size == 3
         # Defaults preserved
-        assert config.llm.model == "gpt-4"
+        assert config.llm.model == "gpt-4o"

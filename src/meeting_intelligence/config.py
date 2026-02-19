@@ -63,7 +63,7 @@ class ASRConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    model: str = "gpt-4"
+    model: str = "gpt-4o"
     api_key: str = ""
     temperature: float = 0.1
     max_tokens: int = 4096
