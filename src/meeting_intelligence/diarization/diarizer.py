@@ -68,10 +68,13 @@ class SpeakerDiarizer:
                 kwargs["max_speakers"] = max_speakers or self.config.max_speakers
 
         logger.info("Running speaker diarization...")
-        diarization = self._pipeline(audio_input, **kwargs)
+        output = self._pipeline(audio_input, **kwargs)
+
+        # pyannote.audio v4.0+ returns DiarizeOutput; extract the Annotation
+        annotation = getattr(output, "speaker_diarization", output)
 
         segments = []
-        for turn, _, speaker in diarization.itertracks(yield_label=True):
+        for turn, _, speaker in annotation.itertracks(yield_label=True):
             segments.append(
                 DiarizationSegment(
                     speaker=speaker,

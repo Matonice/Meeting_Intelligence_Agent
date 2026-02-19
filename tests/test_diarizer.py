@@ -26,12 +26,15 @@ def _make_mock_turn(start, end):
 
 def _make_mock_pipeline(tracks):
     pipeline = MagicMock()
-    diarization_result = MagicMock()
-    diarization_result.itertracks.return_value = [
+    annotation = MagicMock()
+    annotation.itertracks.return_value = [
         (_make_mock_turn(start, end), None, speaker)
         for start, end, speaker in tracks
     ]
-    pipeline.return_value = diarization_result
+    # pyannote v4.0+ returns DiarizeOutput with speaker_diarization attribute
+    diarize_output = MagicMock()
+    diarize_output.speaker_diarization = annotation
+    pipeline.return_value = diarize_output
     return pipeline
 
 
