@@ -33,6 +33,7 @@ dev = [
     "pytest-mock>=3.0",
     "ruff>=0.5",
     "mypy>=1.10",
+    "pre-commit>=3.0",
 ]
 
 [project.scripts]
@@ -44,6 +45,13 @@ where = ["src"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
