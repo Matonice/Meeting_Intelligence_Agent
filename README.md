@@ -6,7 +6,6 @@ Turn pre-recorded meeting audio into structured knowledge: speaker-attributed tr
 
 - [Architecture Overview](#architecture-overview)
 - [Pipeline Stages](#pipeline-stages)
-- [Data Models](#data-models)
 - [Setup & Installation](#setup--installation)
 - [Usage](#usage)
 - [Testing](#testing)
@@ -67,43 +66,6 @@ Audio File (.wav, .mp3, .flac, .ogg, .m4a, .wma, .webm)
 | 10. Q&A | `understanding/qa.py` | GPT-4 | Answers questions grounded in the transcript |
 | 11. Output | `output/` | — | Writes JSON and Markdown reports |
 | 12. TTS | `tts/speaker.py` | edge-tts | Narrates summary as MP3 audio |
-
----
-
-## Data Models
-
-All models live in `src/meeting_intelligence/models/` and use Pydantic v2.
-
-### Audio Models (`models/audio.py`)
-
-```
-AudioMetadata    — file_path, duration_seconds, sample_rate, channels, format, file_size_bytes
-AudioData        — samples (float32 array), sample_rate, duration_seconds, metadata
-SpeechSegment    — start, end, confidence  (+.duration property)
-```
-
-### Transcript Models (`models/transcript.py`)
-
-```
-Word               — text, start, end, confidence
-DiarizationSegment — speaker, start, end
-TranscriptSegment  — speaker, start, end, text, words[], confidence
-TopicBlock         — topic, summary, segments[], start, end
-Transcript         — segments[], speakers[], language, duration_seconds, topic_blocks[]
-                     (+.full_text, .speaker_text properties)
-```
-
-### Meeting Models (`models/meeting.py`)
-
-```
-Decision       — id, text, context, timestamp, participants[], confidence
-ActionItem     — id, task, assignee, deadline, priority (high/medium/low), status, confidence
-MeetingSummary — title, executive_summary, key_points[], topics_discussed[],
-                 participant_count, duration_minutes
-QAResponse     — question, answer, relevant_segments[], confidence
-MeetingResult  — audio_file, processed_at, transcript, summary, decisions[],
-                 action_items[], qa_history[]
-```
 
 ---
 
