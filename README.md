@@ -22,7 +22,12 @@ The system processes audio through a 12-stage pipeline, split into two independe
 
 This separation means you can transcribe once and re-analyze many times without reprocessing audio.
 
-![Architecture Diagram](docs/architecture.png)
+<p  align="center">
+
+<img  src="architecture.png"  alt="architecture img"/>
+
+</p>  
+
 
 ```
 Audio File (.wav, .mp3, .flac, .ogg, .m4a, .wma, .webm)
