@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from meeting_intelligence.config import DiarizationConfig
 from meeting_intelligence.diarization.diarizer import SpeakerDiarizer
 from meeting_intelligence.models.transcript import DiarizationSegment
@@ -28,8 +27,7 @@ def _make_mock_pipeline(tracks):
     pipeline = MagicMock()
     annotation = MagicMock()
     annotation.itertracks.return_value = [
-        (_make_mock_turn(start, end), None, speaker)
-        for start, end, speaker in tracks
+        (_make_mock_turn(start, end), None, speaker) for start, end, speaker in tracks
     ]
     # pyannote v4.0+ returns DiarizeOutput with speaker_diarization attribute
     diarize_output = MagicMock()
@@ -44,11 +42,13 @@ class TestSpeakerDiarizer:
     def test_diarize_two_speakers(
         self, mock_pipeline_cls, mock_torch, diarization_config, sample_audio
     ):
-        mock_pipeline = _make_mock_pipeline([
-            (0.0, 3.0, "SPEAKER_00"),
-            (3.5, 6.0, "SPEAKER_01"),
-            (6.5, 9.0, "SPEAKER_00"),
-        ])
+        mock_pipeline = _make_mock_pipeline(
+            [
+                (0.0, 3.0, "SPEAKER_00"),
+                (3.5, 6.0, "SPEAKER_01"),
+                (6.5, 9.0, "SPEAKER_00"),
+            ]
+        )
         mock_pipeline_cls.from_pretrained.return_value = mock_pipeline
         mock_torch.cuda.is_available.return_value = False
 
@@ -96,10 +96,12 @@ class TestSpeakerDiarizer:
     def test_num_speakers_passed(
         self, mock_pipeline_cls, mock_torch, diarization_config, sample_audio
     ):
-        mock_pipeline = _make_mock_pipeline([
-            (0.0, 5.0, "SPEAKER_00"),
-            (5.0, 10.0, "SPEAKER_01"),
-        ])
+        mock_pipeline = _make_mock_pipeline(
+            [
+                (0.0, 5.0, "SPEAKER_00"),
+                (5.0, 10.0, "SPEAKER_01"),
+            ]
+        )
         mock_pipeline_cls.from_pretrained.return_value = mock_pipeline
         mock_torch.cuda.is_available.return_value = False
 
@@ -113,9 +115,7 @@ class TestSpeakerDiarizer:
 
     @patch("meeting_intelligence.diarization.diarizer.torch")
     @patch("meeting_intelligence.diarization.diarizer.Pipeline")
-    def test_min_max_speakers_from_config(
-        self, mock_pipeline_cls, mock_torch, sample_audio
-    ):
+    def test_min_max_speakers_from_config(self, mock_pipeline_cls, mock_torch, sample_audio):
         config = DiarizationConfig(
             model="pyannote/speaker-diarization-3.1",
             min_speakers=2,
@@ -134,9 +134,7 @@ class TestSpeakerDiarizer:
 
     @patch("meeting_intelligence.diarization.diarizer.torch")
     @patch("meeting_intelligence.diarization.diarizer.Pipeline")
-    def test_hf_token_passed_to_pipeline(
-        self, mock_pipeline_cls, mock_torch, sample_audio
-    ):
+    def test_hf_token_passed_to_pipeline(self, mock_pipeline_cls, mock_torch, sample_audio):
         config = DiarizationConfig(
             model="pyannote/speaker-diarization-3.1",
             huggingface_token="hf_test123",
@@ -155,9 +153,7 @@ class TestSpeakerDiarizer:
 
     @patch("meeting_intelligence.diarization.diarizer.torch")
     @patch("meeting_intelligence.diarization.diarizer.Pipeline")
-    def test_empty_token_passes_none(
-        self, mock_pipeline_cls, mock_torch, sample_audio
-    ):
+    def test_empty_token_passes_none(self, mock_pipeline_cls, mock_torch, sample_audio):
         config = DiarizationConfig(
             model="pyannote/speaker-diarization-3.1",
             huggingface_token="",

@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-
 from meeting_intelligence.models.meeting import QAResponse
 from meeting_intelligence.models.transcript import Transcript, TranscriptSegment
 from meeting_intelligence.understanding.qa import MeetingQA
@@ -46,7 +45,9 @@ class TestMeetingQA:
     def test_ask_with_preloaded_transcript(self, mock_llm, sample_transcript):
         mock_llm.count_tokens.return_value = 100
         mock_llm.complete.return_value = QAResponse(
-            question="Q", answer="A", confidence=0.5,
+            question="Q",
+            answer="A",
+            confidence=0.5,
         )
 
         qa = MeetingQA(mock_llm)
@@ -63,7 +64,9 @@ class TestMeetingQA:
     def test_ask_argument_overrides_preloaded(self, mock_llm, sample_transcript):
         mock_llm.count_tokens.return_value = 100
         mock_llm.complete.return_value = QAResponse(
-            question="Q", answer="From arg transcript", confidence=0.7,
+            question="Q",
+            answer="From arg transcript",
+            confidence=0.7,
         )
 
         other_transcript = Transcript(
@@ -76,7 +79,7 @@ class TestMeetingQA:
 
         qa = MeetingQA(mock_llm)
         qa.load_transcript(sample_transcript)
-        result = qa.ask("Q", transcript=other_transcript)
+        qa.ask("Q", transcript=other_transcript)
 
         # Should use the other_transcript
         user_prompt = mock_llm.complete.call_args[1]["user_prompt"]
@@ -85,7 +88,9 @@ class TestMeetingQA:
     def test_ask_includes_numbered_segments(self, mock_llm, sample_transcript):
         mock_llm.count_tokens.return_value = 100
         mock_llm.complete.return_value = QAResponse(
-            question="Q", answer="A", confidence=0.5,
+            question="Q",
+            answer="A",
+            confidence=0.5,
         )
 
         qa = MeetingQA(mock_llm)
@@ -99,7 +104,9 @@ class TestMeetingQA:
         mock_llm.count_tokens.return_value = 7000
         mock_llm.chunk_transcript.return_value = ["old stuff", "recent content"]
         mock_llm.complete.return_value = QAResponse(
-            question="Q", answer="A", confidence=0.5,
+            question="Q",
+            answer="A",
+            confidence=0.5,
         )
 
         qa = MeetingQA(mock_llm)
@@ -112,16 +119,20 @@ class TestMeetingQA:
     def test_load_transcript_can_be_overwritten(self, mock_llm):
         t1 = Transcript(
             segments=[TranscriptSegment(speaker="A", start=0, end=1, text="First")],
-            speakers=["A"], duration_seconds=1.0,
+            speakers=["A"],
+            duration_seconds=1.0,
         )
         t2 = Transcript(
             segments=[TranscriptSegment(speaker="B", start=0, end=1, text="Second")],
-            speakers=["B"], duration_seconds=1.0,
+            speakers=["B"],
+            duration_seconds=1.0,
         )
 
         mock_llm.count_tokens.return_value = 100
         mock_llm.complete.return_value = QAResponse(
-            question="Q", answer="A", confidence=0.5,
+            question="Q",
+            answer="A",
+            confidence=0.5,
         )
 
         qa = MeetingQA(mock_llm)

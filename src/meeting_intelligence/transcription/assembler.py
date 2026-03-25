@@ -57,9 +57,7 @@ class TranscriptAssembler:
                 labeled_segments.extend(split)
             else:
                 # Fall back to segment-level assignment
-                speaker = self._find_overlapping_speaker(
-                    seg.start, seg.end, diarization_segments
-                )
+                speaker = self._find_overlapping_speaker(seg.start, seg.end, diarization_segments)
                 labeled_segments.append(seg.model_copy(update={"speaker": speaker}))
 
         # Merge consecutive same-speaker segments
@@ -94,9 +92,7 @@ class TranscriptAssembler:
         for dseg in diarization_segments:
             overlap = self._compute_overlap(start, end, dseg.start, dseg.end)
             if overlap > 0:
-                speaker_overlaps[dseg.speaker] = (
-                    speaker_overlaps.get(dseg.speaker, 0.0) + overlap
-                )
+                speaker_overlaps[dseg.speaker] = speaker_overlaps.get(dseg.speaker, 0.0) + overlap
 
         if not speaker_overlaps:
             return "UNKNOWN"
@@ -118,9 +114,7 @@ class TranscriptAssembler:
         # Assign each word to a speaker
         word_speakers: list[tuple[Word, str]] = []
         for word in segment.words:
-            speaker = self._find_overlapping_speaker(
-                word.start, word.end, diarization_segments
-            )
+            speaker = self._find_overlapping_speaker(word.start, word.end, diarization_segments)
             word_speakers.append((word, speaker))
 
         # Group consecutive words by speaker

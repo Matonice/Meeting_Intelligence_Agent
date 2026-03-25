@@ -82,8 +82,7 @@ class LLMClient:
         # Build messages with schema instruction for fallbacks
         schema_instruction = (
             "\n\nYou MUST respond with valid JSON and nothing else. "
-            "Match this schema:\n"
-            + json.dumps(response_model.model_json_schema(), indent=2)
+            "Match this schema:\n" + json.dumps(response_model.model_json_schema(), indent=2)
         )
         fallback_messages = messages.copy()
         fallback_messages[0] = {

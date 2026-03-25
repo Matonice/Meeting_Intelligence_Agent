@@ -1,7 +1,6 @@
 """Tests for output writers."""
 
 import json
-from pathlib import Path
 
 from meeting_intelligence.output.json_writer import JSONWriter
 from meeting_intelligence.output.markdown_writer import MarkdownWriter

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from ..models.transcript import Transcript, TranscriptSegment
+from ..models.transcript import Transcript
 from ..utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -41,9 +41,7 @@ class TranscriptCleaner:
             if text.strip():
                 cleaned_segments.append(seg.model_copy(update={"text": text.strip()}))
 
-        logger.info(
-            f"Cleaning: {len(transcript.segments)} → {len(cleaned_segments)} segments"
-        )
+        logger.info(f"Cleaning: {len(transcript.segments)} → {len(cleaned_segments)} segments")
 
         return transcript.model_copy(update={"segments": cleaned_segments})
 

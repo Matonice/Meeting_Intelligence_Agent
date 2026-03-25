@@ -4,14 +4,15 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from ..models.transcript import Transcript, TopicBlock
+from ..models.transcript import TopicBlock, Transcript
 from ..understanding.llm_client import LLMClient
 from ..utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-SEGMENTATION_SYSTEM_PROMPT = """You are a meeting analyst. Given a numbered meeting transcript, identify distinct topics discussed.
+SEGMENTATION_SYSTEM_PROMPT = """You are a meeting analyst. Given a numbered meeting transcript, 
+identify distinct topics discussed.
 
 For each topic, provide:
 - topic: Short topic name (2-5 words)
@@ -122,7 +123,10 @@ class TopicSegmenter:
         if current_segments:
             blocks.append(
                 TopicBlock(
-                    topic=f"Discussion ({block_start / 60:.0f}-{current_segments[-1].end / 60:.0f} min)",
+                    topic=(
+                        f"Discussion ({block_start / 60:.0f}-"
+                        f"{current_segments[-1].end / 60:.0f} min)"
+                    ),
                     summary="",
                     segments=current_segments,
                     start=current_segments[0].start,

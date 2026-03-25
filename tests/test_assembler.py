@@ -12,9 +12,7 @@ class TestTranscriptAssembler:
     def setup_method(self):
         self.assembler = TranscriptAssembler()
 
-    def test_simple_two_speaker_merge(
-        self, sample_asr_segments, sample_diarization_segments
-    ):
+    def test_simple_two_speaker_merge(self, sample_asr_segments, sample_diarization_segments):
         """Two speakers, non-overlapping segments correctly assigned."""
         transcript = self.assembler.assemble(
             sample_asr_segments, sample_diarization_segments, duration_seconds=10.0

@@ -1,10 +1,8 @@
 """Tests for text-to-speech summary narration."""
 
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from meeting_intelligence.config import TTSConfig
 from meeting_intelligence.models.meeting import MeetingSummary
 from meeting_intelligence.tts.speaker import SummaryNarrator
@@ -56,9 +54,12 @@ class TestSummaryNarrator:
 
     def test_format_summary_empty_topics_skipped(self, tts_config):
         summary = MeetingSummary(
-            title="Test", executive_summary="Test.",
-            key_points=[], topics_discussed=[],
-            participant_count=1, duration_minutes=1.0,
+            title="Test",
+            executive_summary="Test.",
+            key_points=[],
+            topics_discussed=[],
+            participant_count=1,
+            duration_minutes=1.0,
         )
         narrator = SummaryNarrator(tts_config)
         text = narrator._format_summary_for_speech(summary)
@@ -67,9 +68,12 @@ class TestSummaryNarrator:
 
     def test_format_summary_empty_key_points(self, tts_config):
         summary = MeetingSummary(
-            title="Test", executive_summary="Test.",
-            key_points=[], topics_discussed=["Topic"],
-            participant_count=1, duration_minutes=1.0,
+            title="Test",
+            executive_summary="Test.",
+            key_points=[],
+            topics_discussed=["Topic"],
+            participant_count=1,
+            duration_minutes=1.0,
         )
         narrator = SummaryNarrator(tts_config)
         text = narrator._format_summary_for_speech(summary)

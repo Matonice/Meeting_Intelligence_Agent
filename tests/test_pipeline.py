@@ -1,12 +1,11 @@
 """Tests for the pipeline orchestrator."""
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-
-from meeting_intelligence.config import AppConfig, LLMConfig
+from meeting_intelligence.config import AppConfig
 from meeting_intelligence.models.audio import AudioData, AudioMetadata, SpeechSegment
 from meeting_intelligence.models.meeting import (
     ActionItem,
@@ -19,7 +18,6 @@ from meeting_intelligence.models.transcript import (
     DiarizationSegment,
     Transcript,
     TranscriptSegment,
-    TopicBlock,
 )
 from meeting_intelligence.pipeline import Pipeline
 
@@ -114,7 +112,9 @@ class TestPipelineRunStage:
         pipeline = Pipeline(pipeline_config, progress=mock_progress)
 
         with pytest.raises(RuntimeError, match="boom"):
-            pipeline._run_stage("test", "Testing...", lambda: (_ for _ in ()).throw(RuntimeError("boom")))
+            pipeline._run_stage(
+                "test", "Testing...", lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+            )
 
         mock_progress.on_stage_error.assert_called_once()
 
@@ -156,9 +156,7 @@ class TestPipelineProcess:
         pipeline._vad = mock_vad
 
         mock_diarizer = MagicMock()
-        mock_diarizer.diarize.return_value = [
-            DiarizationSegment(speaker="A", start=0, end=1)
-        ]
+        mock_diarizer.diarize.return_value = [DiarizationSegment(speaker="A", start=0, end=1)]
         pipeline._diarizer = mock_diarizer
 
         mock_asr = MagicMock()
@@ -223,9 +221,7 @@ class TestPipelineProcess:
         pipeline._vad = mock_vad
 
         mock_diarizer = MagicMock()
-        mock_diarizer.diarize.return_value = [
-            DiarizationSegment(speaker="A", start=0, end=1)
-        ]
+        mock_diarizer.diarize.return_value = [DiarizationSegment(speaker="A", start=0, end=1)]
         pipeline._diarizer = mock_diarizer
 
         mock_asr = MagicMock()
@@ -249,9 +245,7 @@ class TestPipelineProcess:
         mock_extractor.extract_decisions.return_value = [
             Decision(id=1, text="Deploy", confidence=0.9)
         ]
-        mock_extractor.extract_action_items.return_value = [
-            ActionItem(id=1, task="Report")
-        ]
+        mock_extractor.extract_action_items.return_value = [ActionItem(id=1, task="Report")]
         mock_extractor_cls.return_value = mock_extractor
 
         mock_summarizer = MagicMock()
@@ -311,14 +305,10 @@ class TestPipelineProcess:
         mock_extractor.extract_decisions.return_value = []
         mock_extractor.extract_action_items.return_value = []
         mock_extractor_cls.return_value = mock_extractor
-        mock_summarizer_cls.return_value = MagicMock(
-            summarize=MagicMock(return_value=mock_summary)
-        )
+        mock_summarizer_cls.return_value = MagicMock(summarize=MagicMock(return_value=mock_summary))
 
         mock_qa = MagicMock()
-        mock_qa.ask.return_value = QAResponse(
-            question="Q", answer="A", confidence=0.8
-        )
+        mock_qa.ask.return_value = QAResponse(question="Q", answer="A", confidence=0.8)
         mock_qa_cls.return_value = mock_qa
 
         result = pipeline.process(
@@ -411,9 +401,7 @@ class TestPipelineEmptyQuestions:
         mock_ext.extract_decisions.return_value = []
         mock_ext.extract_action_items.return_value = []
         mock_extractor_cls.return_value = mock_ext
-        mock_summarizer_cls.return_value = MagicMock(
-            summarize=MagicMock(return_value=mock_summary)
-        )
+        mock_summarizer_cls.return_value = MagicMock(summarize=MagicMock(return_value=mock_summary))
 
         result = pipeline.process(Path("/tmp/test.wav"), questions=[])
 

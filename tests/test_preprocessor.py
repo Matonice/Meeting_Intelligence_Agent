@@ -2,12 +2,10 @@
 
 from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pytest
-
 from meeting_intelligence.audio.preprocessor import VADProcessor
 from meeting_intelligence.config import VADConfig
-from meeting_intelligence.models.audio import AudioData, AudioMetadata, SpeechSegment
+from meeting_intelligence.models.audio import SpeechSegment
 
 
 @pytest.fixture
@@ -63,9 +61,7 @@ class TestVADProcessor:
         assert segments == []
 
     @patch("meeting_intelligence.audio.preprocessor.torch")
-    def test_model_loaded_only_once(
-        self, mock_torch, vad_config, mock_vad_model, sample_audio
-    ):
+    def test_model_loaded_only_once(self, mock_torch, vad_config, mock_vad_model, sample_audio):
         model, utils, get_speech_timestamps = mock_vad_model
         mock_torch.hub.load.return_value = (model, utils)
         mock_torch.from_numpy.return_value = MagicMock()
@@ -79,9 +75,7 @@ class TestVADProcessor:
         mock_torch.hub.load.assert_called_once()
 
     @patch("meeting_intelligence.audio.preprocessor.torch")
-    def test_passes_config_to_vad(
-        self, mock_torch, mock_vad_model, sample_audio
-    ):
+    def test_passes_config_to_vad(self, mock_torch, mock_vad_model, sample_audio):
         config = VADConfig(threshold=0.7, min_speech_duration_ms=500, min_silence_duration_ms=200)
         model, utils, get_speech_timestamps = mock_vad_model
         mock_torch.hub.load.return_value = (model, utils)

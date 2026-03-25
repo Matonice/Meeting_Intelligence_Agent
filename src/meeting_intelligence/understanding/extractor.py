@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from ..models.meeting import ActionItem, Decision, Priority
+from ..models.meeting import ActionItem, Decision
 from ..models.transcript import Transcript
 from ..utils.logging import get_logger
 from .llm_client import LLMClient
@@ -24,7 +24,8 @@ class ActionItemList(BaseModel):
     action_items: list[ActionItem] = Field(default_factory=list)
 
 
-DECISION_SYSTEM_PROMPT = """You are a meeting analyst. Extract all decisions made during this meeting.
+DECISION_SYSTEM_PROMPT = """You are a meeting analyst. Extract all decisions made during this 
+meeting.
 
 A decision is a commitment, agreement, or resolution to a specific course of action.
 Examples:
@@ -41,7 +42,8 @@ For each decision, provide:
 
 Only extract clear decisions, not suggestions or questions. Return valid JSON."""
 
-ACTION_SYSTEM_PROMPT = """You are a meeting analyst. Extract all action items (tasks) from this meeting.
+ACTION_SYSTEM_PROMPT = """You are a meeting analyst. Extract all action items (tasks) from this
+ meeting.
 
 An action item is a specific task assigned to or taken on by someone.
 Examples:
@@ -105,9 +107,6 @@ class MeetingExtractor:
             chunks = self.llm.chunk_transcript(text, max_tokens=6000)
             if len(chunks) > 1:
                 # Use last chunk + summary of earlier parts
-                text = (
-                    "[Earlier discussion omitted for length]\n...\n\n"
-                    + chunks[-1]
-                )
+                text = "[Earlier discussion omitted for length]\n...\n\n" + chunks[-1]
 
         return text

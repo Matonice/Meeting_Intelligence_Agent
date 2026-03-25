@@ -62,8 +62,6 @@ class SummaryNarrator:
 
         if summary.topics_discussed:
             parts.append("")
-            parts.append(
-                f"Topics discussed included: {', '.join(summary.topics_discussed)}."
-            )
+            parts.append(f"Topics discussed included: {', '.join(summary.topics_discussed)}.")
 
         return "\n".join(parts)

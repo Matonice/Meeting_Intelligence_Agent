@@ -3,8 +3,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-
-from meeting_intelligence.models.transcript import Transcript, TranscriptSegment, TopicBlock
+from meeting_intelligence.models.transcript import TopicBlock, Transcript, TranscriptSegment
 from meeting_intelligence.postprocessing.segmenter import (
     TopicInfo,
     TopicList,
@@ -43,11 +42,17 @@ class TestTopicSegmenter:
 
     def test_llm_segmentation(self, mock_llm, multi_segment_transcript):
         mock_llm.count_tokens.return_value = 500
-        mock_llm.complete.return_value = TopicList(topics=[
-            TopicInfo(topic="Introduction", summary="Opening remarks", start_index=0, end_index=0),
-            TopicInfo(topic="Architecture", summary="Tech stack", start_index=1, end_index=2),
-            TopicInfo(topic="Frontend & Deploy", summary="UI and ops", start_index=3, end_index=4),
-        ])
+        mock_llm.complete.return_value = TopicList(
+            topics=[
+                TopicInfo(
+                    topic="Introduction", summary="Opening remarks", start_index=0, end_index=0
+                ),
+                TopicInfo(topic="Architecture", summary="Tech stack", start_index=1, end_index=2),
+                TopicInfo(
+                    topic="Frontend & Deploy", summary="UI and ops", start_index=3, end_index=4
+                ),
+            ]
+        )
 
         segmenter = TopicSegmenter(mock_llm)
         blocks = segmenter.segment(multi_segment_transcript)
@@ -63,9 +68,11 @@ class TestTopicSegmenter:
     def test_llm_segmentation_clamps_indices(self, mock_llm, sample_transcript):
         """Out-of-bound indices are clamped to valid range."""
         mock_llm.count_tokens.return_value = 100
-        mock_llm.complete.return_value = TopicList(topics=[
-            TopicInfo(topic="All", summary="Everything", start_index=-5, end_index=999),
-        ])
+        mock_llm.complete.return_value = TopicList(
+            topics=[
+                TopicInfo(topic="All", summary="Everything", start_index=-5, end_index=999),
+            ]
+        )
 
         segmenter = TopicSegmenter(mock_llm)
         blocks = segmenter.segment(sample_transcript)
@@ -110,9 +117,11 @@ class TestTopicSegmenter:
 
     def test_topic_block_start_end_from_segments(self, mock_llm, multi_segment_transcript):
         mock_llm.count_tokens.return_value = 100
-        mock_llm.complete.return_value = TopicList(topics=[
-            TopicInfo(topic="First", summary="s", start_index=0, end_index=1),
-        ])
+        mock_llm.complete.return_value = TopicList(
+            topics=[
+                TopicInfo(topic="First", summary="s", start_index=0, end_index=1),
+            ]
+        )
 
         segmenter = TopicSegmenter(mock_llm)
         blocks = segmenter.segment(multi_segment_transcript)
@@ -123,9 +132,11 @@ class TestTopicSegmenter:
     def test_long_transcript_chunked(self, mock_llm, multi_segment_transcript):
         mock_llm.count_tokens.return_value = 7000
         mock_llm.chunk_transcript.return_value = ["chunk1", "chunk2"]
-        mock_llm.complete.return_value = TopicList(topics=[
-            TopicInfo(topic="Overview", summary="s", start_index=0, end_index=4),
-        ])
+        mock_llm.complete.return_value = TopicList(
+            topics=[
+                TopicInfo(topic="Overview", summary="s", start_index=0, end_index=4),
+            ]
+        )
 
         segmenter = TopicSegmenter(mock_llm)
         segmenter.segment(multi_segment_transcript)

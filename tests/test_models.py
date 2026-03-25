@@ -5,8 +5,6 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-import pytest
-
 from meeting_intelligence.models.audio import AudioData, AudioMetadata, SpeechSegment
 from meeting_intelligence.models.meeting import (
     ActionItem,
@@ -18,7 +16,6 @@ from meeting_intelligence.models.meeting import (
 )
 from meeting_intelligence.models.transcript import (
     DiarizationSegment,
-    TopicBlock,
     Transcript,
     TranscriptSegment,
     Word,
@@ -155,7 +152,10 @@ class TestTranscript:
         t = Transcript(
             segments=[
                 TranscriptSegment(
-                    speaker="A", start=0.0, end=1.0, text="Test",
+                    speaker="A",
+                    start=0.0,
+                    end=1.0,
+                    text="Test",
                     words=[Word(text="Test", start=0.0, end=1.0, confidence=0.9)],
                 ),
             ],
@@ -195,8 +195,12 @@ class TestDecision:
 
     def test_with_all_fields(self):
         d = Decision(
-            id=1, text="Deploy", context="Sprint meeting",
-            timestamp=45.2, participants=["Alice", "Bob"], confidence=0.9,
+            id=1,
+            text="Deploy",
+            context="Sprint meeting",
+            timestamp=45.2,
+            participants=["Alice", "Bob"],
+            confidence=0.9,
         )
         assert len(d.participants) == 2
 
@@ -211,8 +215,11 @@ class TestActionItem:
 
     def test_with_all_fields(self):
         a = ActionItem(
-            id=1, task="Send report", assignee="John",
-            deadline="Friday", priority=Priority.HIGH,
+            id=1,
+            task="Send report",
+            assignee="John",
+            deadline="Friday",
+            priority=Priority.HIGH,
         )
         assert a.assignee == "John"
         assert a.priority == Priority.HIGH
@@ -242,24 +249,38 @@ class TestMeetingResult:
     def test_processed_at_auto_set(self):
         t = Transcript(segments=[], speakers=[], duration_seconds=0.0)
         s = MeetingSummary(
-            title="T", executive_summary="S", key_points=[],
-            topics_discussed=[], participant_count=0, duration_minutes=0,
+            title="T",
+            executive_summary="S",
+            key_points=[],
+            topics_discussed=[],
+            participant_count=0,
+            duration_minutes=0,
         )
         r = MeetingResult(
-            audio_file="test.wav", transcript=t, summary=s,
-            decisions=[], action_items=[],
+            audio_file="test.wav",
+            transcript=t,
+            summary=s,
+            decisions=[],
+            action_items=[],
         )
         assert isinstance(r.processed_at, datetime)
 
     def test_qa_history_default_empty(self):
         t = Transcript(segments=[], speakers=[], duration_seconds=0.0)
         s = MeetingSummary(
-            title="T", executive_summary="S", key_points=[],
-            topics_discussed=[], participant_count=0, duration_minutes=0,
+            title="T",
+            executive_summary="S",
+            key_points=[],
+            topics_discussed=[],
+            participant_count=0,
+            duration_minutes=0,
         )
         r = MeetingResult(
-            audio_file="test.wav", transcript=t, summary=s,
-            decisions=[], action_items=[],
+            audio_file="test.wav",
+            transcript=t,
+            summary=s,
+            decisions=[],
+            action_items=[],
         )
         assert r.qa_history == []
 

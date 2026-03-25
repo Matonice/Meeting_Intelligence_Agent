@@ -88,9 +88,7 @@ class SpeakerDiarizer:
 
         return segments
 
-    def get_speaker_stats(
-        self, segments: list[DiarizationSegment]
-    ) -> dict[str, float]:
+    def get_speaker_stats(self, segments: list[DiarizationSegment]) -> dict[str, float]:
         """Return total speaking time per speaker."""
         stats: dict[str, float] = {}
         for seg in segments:

@@ -3,14 +3,14 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from pydantic import BaseModel, Field
-
 from meeting_intelligence.config import LLMConfig
 from meeting_intelligence.understanding.llm_client import LLMClient
+from pydantic import BaseModel
 
 
 class SampleResponse(BaseModel):
     """Test response model for structured output tests."""
+
     name: str
     value: int = 0
 
@@ -32,9 +32,7 @@ class TestLLMClientComplete:
     def test_complete_text_returns_string(self, llm_config, mock_openai):
         mock_choice = MagicMock()
         mock_choice.message.content = "Hello world"
-        mock_openai.chat.completions.create.return_value = MagicMock(
-            choices=[mock_choice]
-        )
+        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
 
         client = LLMClient(llm_config)
         result = client.complete("system", "user")
@@ -44,9 +42,7 @@ class TestLLMClientComplete:
     def test_complete_text_none_content_returns_empty(self, llm_config, mock_openai):
         mock_choice = MagicMock()
         mock_choice.message.content = None
-        mock_openai.chat.completions.create.return_value = MagicMock(
-            choices=[mock_choice]
-        )
+        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
 
         client = LLMClient(llm_config)
         result = client.complete("system", "user")
@@ -58,9 +54,7 @@ class TestLLMClientComplete:
         parsed = SampleResponse(name="test", value=42)
         mock_choice = MagicMock()
         mock_choice.message.parsed = parsed
-        mock_openai.beta.chat.completions.parse.return_value = MagicMock(
-            choices=[mock_choice]
-        )
+        mock_openai.beta.chat.completions.parse.return_value = MagicMock(choices=[mock_choice])
 
         client = LLMClient(llm_config)
         result = client.complete("system", "user", response_model=SampleResponse)
@@ -75,9 +69,7 @@ class TestLLMClientComplete:
 
         mock_choice = MagicMock()
         mock_choice.message.content = '{"name": "fallback", "value": 99}'
-        mock_openai.chat.completions.create.return_value = MagicMock(
-            choices=[mock_choice]
-        )
+        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
 
         client = LLMClient(llm_config)
         result = client.complete("system", "user", response_model=SampleResponse)
@@ -90,15 +82,11 @@ class TestLLMClientComplete:
         """Falls back when native parse returns None."""
         mock_choice = MagicMock()
         mock_choice.message.parsed = None
-        mock_openai.beta.chat.completions.parse.return_value = MagicMock(
-            choices=[mock_choice]
-        )
+        mock_openai.beta.chat.completions.parse.return_value = MagicMock(choices=[mock_choice])
 
         mock_fallback_choice = MagicMock()
         mock_fallback_choice.message.content = '{"name": "fallback", "value": 1}'
-        mock_openai.chat.completions.create.return_value = MagicMock(
-            choices=[mock_fallback_choice]
-        )
+        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_fallback_choice])
 
         client = LLMClient(llm_config)
         result = client.complete("system", "user", response_model=SampleResponse)
@@ -108,9 +96,7 @@ class TestLLMClientComplete:
     def test_passes_temperature_and_max_tokens(self, llm_config, mock_openai):
         mock_choice = MagicMock()
         mock_choice.message.content = "ok"
-        mock_openai.chat.completions.create.return_value = MagicMock(
-            choices=[mock_choice]
-        )
+        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
 
         client = LLMClient(llm_config)
         client.complete("sys", "usr")

@@ -6,8 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
-from meeting_intelligence.config import AppConfig, load_config
+from meeting_intelligence.config import AppConfig
 from meeting_intelligence.models.audio import AudioData, AudioMetadata
 from meeting_intelligence.models.meeting import (
     ActionItem,

@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Protocol
 
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
 
 class ProgressCallback(Protocol):

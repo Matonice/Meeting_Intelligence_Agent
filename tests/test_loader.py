@@ -1,17 +1,16 @@
 """Tests for audio loading and normalization."""
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-
 from meeting_intelligence.audio.loader import (
-    AudioLoadError,
     SUPPORTED_FORMATS,
+    AudioLoadError,
+    get_audio_metadata,
     load_audio,
     validate_audio_file,
-    get_audio_metadata,
 )
 from meeting_intelligence.models.audio import AudioData, AudioMetadata
 

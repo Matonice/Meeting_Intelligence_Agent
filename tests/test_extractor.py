@@ -1,9 +1,8 @@
 """Tests for decision and action item extraction."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-
 from meeting_intelligence.models.meeting import ActionItem, Decision, Priority
 from meeting_intelligence.understanding.extractor import (
     ActionItemList,
@@ -67,9 +66,7 @@ class TestMeetingExtractor:
         call_kwargs = mock_llm.complete.call_args[1]
         assert call_kwargs["response_model"] is DecisionList
 
-    def test_extract_action_items_calls_llm_with_correct_model(
-        self, mock_llm, sample_transcript
-    ):
+    def test_extract_action_items_calls_llm_with_correct_model(self, mock_llm, sample_transcript):
         mock_llm.complete.return_value = ActionItemList(action_items=[])
         mock_llm.count_tokens.return_value = 100
 

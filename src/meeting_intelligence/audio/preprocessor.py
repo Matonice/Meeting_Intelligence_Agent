@@ -1,7 +1,9 @@
 """Voice Activity Detection using Silero VAD."""
 
 from __future__ import annotations
+
 import torch
+
 from ..config import VADConfig
 from ..models.audio import AudioData, SpeechSegment
 from ..utils.logging import get_logger
@@ -55,10 +57,7 @@ class VADProcessor:
             return_seconds=True,
         )
 
-        segments = [
-            SpeechSegment(start=ts["start"], end=ts["end"])
-            for ts in timestamps
-        ]
+        segments = [SpeechSegment(start=ts["start"], end=ts["end"]) for ts in timestamps]
 
         total_speech = sum(s.duration for s in segments)
         ratio = total_speech / audio.duration_seconds if audio.duration_seconds > 0 else 0

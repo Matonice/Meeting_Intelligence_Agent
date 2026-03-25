@@ -7,8 +7,8 @@ import re
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+from pydantic import BaseModel, Field
 
 
 def _substitute_env_vars(value: str) -> str:

@@ -15,8 +15,8 @@ from .output.json_writer import JSONWriter
 from .output.markdown_writer import MarkdownWriter
 from .postprocessing.cleaner import TranscriptCleaner
 from .postprocessing.segmenter import TopicSegmenter
-from .transcription.assembler import TranscriptAssembler
 from .transcription.asr import ASREngine
+from .transcription.assembler import TranscriptAssembler
 from .tts.speaker import SummaryNarrator
 from .understanding.extractor import MeetingExtractor
 from .understanding.llm_client import LLMClient
@@ -60,7 +60,9 @@ class Pipeline:
     @property
     def diarizer(self) -> SpeakerDiarizer:
         if self._diarizer is None:
-            self._diarizer = SpeakerDiarizer(self.config.diarization, device=self.config.pipeline.device)
+            self._diarizer = SpeakerDiarizer(
+                self.config.diarization, device=self.config.pipeline.device
+            )
         return self._diarizer
 
     @property
@@ -74,7 +76,8 @@ class Pipeline:
         if self._llm is None:
             if not self.config.llm.api_key:
                 raise ValueError(
-                    "OpenAI API key required. Set OPENAI_API_KEY env var or configure in config.yaml"
+                    "OpenAI API key required. "
+                    "Set OPENAI_API_KEY env var or configure in config.yaml"
                 )
             self._llm = LLMClient(self.config.llm)
         return self._llm
@@ -120,40 +123,56 @@ class Pipeline:
 
         # 1. Load audio
         audio = self._run_stage(
-            "load", "Loading audio file...",
-            load_audio, audio_path, self.config.audio.target_sample_rate,
+            "load",
+            "Loading audio file...",
+            load_audio,
+            audio_path,
+            self.config.audio.target_sample_rate,
         )
 
         # 2. Voice Activity Detection
-        speech_segments = self._run_stage(
-            "vad", "Detecting speech regions...",
-            self.vad.detect_speech, audio,
+        self._run_stage(
+            "vad",
+            "Detecting speech regions...",
+            self.vad.detect_speech,
+            audio,
         )
 
         # 3. Speaker Diarization
         diarization_segments = self._run_stage(
-            "diarization", "Identifying speakers...",
-            self.diarizer.diarize, audio, num_speakers,
+            "diarization",
+            "Identifying speakers...",
+            self.diarizer.diarize,
+            audio,
+            num_speakers,
         )
 
         # 4. ASR Transcription
         asr_segments, detected_lang = self._run_stage(
-            "asr", "Transcribing speech...",
-            self.asr.transcribe, audio, language or self.config.pipeline.language,
+            "asr",
+            "Transcribing speech...",
+            self.asr.transcribe,
+            audio,
+            language or self.config.pipeline.language,
         )
 
         # 5. Assemble transcript
         transcript = self._run_stage(
-            "assembly", "Assembling speaker-attributed transcript...",
+            "assembly",
+            "Assembling speaker-attributed transcript...",
             self._assembler.assemble,
-            asr_segments, diarization_segments,
-            audio.duration_seconds, detected_lang,
+            asr_segments,
+            diarization_segments,
+            audio.duration_seconds,
+            detected_lang,
         )
 
         # 6. Clean transcript
         transcript = self._run_stage(
-            "cleaning", "Cleaning transcript...",
-            self._cleaner.clean, transcript,
+            "cleaning",
+            "Cleaning transcript...",
+            self._cleaner.clean,
+            transcript,
         )
 
         if skip_llm:
@@ -177,27 +196,37 @@ class Pipeline:
         # 7. Topic Segmentation
         segmenter = TopicSegmenter(self.llm)
         topic_blocks = self._run_stage(
-            "topics", "Identifying topics...",
-            segmenter.segment, transcript,
+            "topics",
+            "Identifying topics...",
+            segmenter.segment,
+            transcript,
         )
         transcript = transcript.model_copy(update={"topic_blocks": topic_blocks})
 
         # 8. Extract decisions and action items
         extractor = MeetingExtractor(self.llm)
         decisions = self._run_stage(
-            "decisions", "Extracting decisions...",
-            extractor.extract_decisions, transcript,
+            "decisions",
+            "Extracting decisions...",
+            extractor.extract_decisions,
+            transcript,
         )
         action_items = self._run_stage(
-            "actions", "Extracting action items...",
-            extractor.extract_action_items, transcript,
+            "actions",
+            "Extracting action items...",
+            extractor.extract_action_items,
+            transcript,
         )
 
         # 9. Generate summary
         summarizer = MeetingSummarizer(self.llm)
         summary = self._run_stage(
-            "summary", "Generating summary...",
-            summarizer.summarize, transcript, decisions, action_items,
+            "summary",
+            "Generating summary...",
+            summarizer.summarize,
+            transcript,
+            decisions,
+            action_items,
         )
 
         result = MeetingResult(
@@ -214,8 +243,10 @@ class Pipeline:
             qa.load_transcript(transcript)
             for q in questions:
                 response = self._run_stage(
-                    "qa", f"Answering: {q}",
-                    qa.ask, q,
+                    "qa",
+                    f"Answering: {q}",
+                    qa.ask,
+                    q,
                 )
                 result.qa_history.append(response)
 
@@ -231,8 +262,11 @@ class Pipeline:
             narrator = SummaryNarrator(self.config.tts)
             tts_path = output_dir / f"summary_{result.processed_at.strftime('%Y%m%d_%H%M%S')}.mp3"
             self._run_stage(
-                "tts", "Generating audio summary...",
-                narrator.narrate_sync, summary, tts_path,
+                "tts",
+                "Generating audio summary...",
+                narrator.narrate_sync,
+                summary,
+                tts_path,
             )
 
         logger.info("Pipeline complete!")

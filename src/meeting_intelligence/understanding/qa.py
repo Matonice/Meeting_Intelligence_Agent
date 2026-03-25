@@ -9,7 +9,8 @@ from .llm_client import LLMClient
 
 logger = get_logger(__name__)
 
-QA_SYSTEM_PROMPT = """You are a meeting assistant. Answer questions about the meeting based solely on the transcript provided.
+QA_SYSTEM_PROMPT = """You are a meeting assistant. Answer questions about the meeting based solely 
+on the transcript provided.
 
 Rules:
 - Only answer based on information in the transcript
@@ -18,7 +19,8 @@ Rules:
 - Be concise and direct
 - Include the confidence level (0.0-1.0) of your answer
 
-Return valid JSON with: question, answer, relevant_segments (list of segment indices), confidence."""
+Return valid JSON with: question, answer, relevant_segments (list of segment indices), 
+confidence."""
 
 
 class MeetingQA:
@@ -60,9 +62,7 @@ class MeetingQA:
             chunks = self.llm.chunk_transcript(transcript_text, max_tokens=5500)
             transcript_text = chunks[-1]  # Use most recent portion
             if len(chunks) > 1:
-                transcript_text = (
-                    "[Earlier discussion omitted]\n...\n\n" + transcript_text
-                )
+                transcript_text = "[Earlier discussion omitted]\n...\n\n" + transcript_text
 
         result = self.llm.complete(
             system_prompt=QA_SYSTEM_PROMPT,

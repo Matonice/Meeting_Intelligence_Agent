@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
-
-import numpy as np
 from faster_whisper import WhisperModel
 
 from ..config import ASRConfig

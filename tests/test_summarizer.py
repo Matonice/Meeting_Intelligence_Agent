@@ -1,14 +1,12 @@
 """Tests for meeting summarization."""
 
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 
 import pytest
-
 from meeting_intelligence.models.meeting import (
     ActionItem,
     Decision,
     MeetingSummary,
-    Priority,
 )
 from meeting_intelligence.understanding.summarizer import ChunkSummary, MeetingSummarizer
 
@@ -31,9 +29,7 @@ def sample_summary():
 
 
 class TestMeetingSummarizer:
-    def test_single_pass_short_transcript(
-        self, mock_llm, sample_transcript, sample_summary
-    ):
+    def test_single_pass_short_transcript(self, mock_llm, sample_transcript, sample_summary):
         mock_llm.count_tokens.return_value = 500  # Under 6000
         mock_llm.complete.return_value = sample_summary
 
@@ -45,9 +41,7 @@ class TestMeetingSummarizer:
         assert result.participant_count == len(sample_transcript.speakers)
         assert result.duration_minutes == round(sample_transcript.duration_seconds / 60.0, 1)
 
-    def test_map_reduce_long_transcript(
-        self, mock_llm, sample_transcript, sample_summary
-    ):
+    def test_map_reduce_long_transcript(self, mock_llm, sample_transcript, sample_summary):
         mock_llm.count_tokens.return_value = 7000  # Over 6000
         mock_llm.chunk_transcript.return_value = ["chunk1", "chunk2"]
 
@@ -68,9 +62,7 @@ class TestMeetingSummarizer:
         # 3 LLM calls: 2 map + 1 reduce
         assert mock_llm.complete.call_count == 3
 
-    def test_overrides_participant_count(
-        self, mock_llm, sample_transcript, sample_summary
-    ):
+    def test_overrides_participant_count(self, mock_llm, sample_transcript, sample_summary):
         mock_llm.count_tokens.return_value = 100
         sample_summary.participant_count = 999
         mock_llm.complete.return_value = sample_summary
@@ -81,9 +73,7 @@ class TestMeetingSummarizer:
         # LLM's guess is overridden
         assert result.participant_count == 2  # sample_transcript has 2 speakers
 
-    def test_overrides_duration(
-        self, mock_llm, sample_transcript, sample_summary
-    ):
+    def test_overrides_duration(self, mock_llm, sample_transcript, sample_summary):
         mock_llm.count_tokens.return_value = 100
         sample_summary.duration_minutes = 999
         mock_llm.complete.return_value = sample_summary
@@ -106,9 +96,7 @@ class TestMeetingSummarizer:
         user_prompt = mock_llm.complete.call_args[1]["user_prompt"]
         assert "Deploy Friday" in user_prompt
 
-    def test_context_includes_action_items(
-        self, mock_llm, sample_transcript, sample_summary
-    ):
+    def test_context_includes_action_items(self, mock_llm, sample_transcript, sample_summary):
         mock_llm.count_tokens.return_value = 100
         mock_llm.complete.return_value = sample_summary
 

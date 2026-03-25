@@ -22,8 +22,13 @@ console = Console()
 
 
 @click.group()
-@click.option("--config", "config_path", type=click.Path(exists=True), default=None,
-              help="Path to config.yaml")
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to config.yaml",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
 @click.pass_context
 def cli(ctx: click.Context, config_path: str | None, verbose: bool) -> None:
@@ -36,18 +41,18 @@ def cli(ctx: click.Context, config_path: str | None, verbose: bool) -> None:
 
 @cli.command()
 @click.argument("audio_file", type=click.Path(exists=True))
-@click.option("--output-dir", "-o", type=click.Path(), default="./output",
-              help="Output directory")
-@click.option("--speakers", "-s", type=int, default=None,
-              help="Expected number of speakers")
-@click.option("--language", "-l", type=str, default=None,
-              help="Language code (e.g., en, fr, de)")
-@click.option("--no-llm", is_flag=True,
-              help="Skip GPT-4 analysis (transcript only)")
-@click.option("--tts", is_flag=True,
-              help="Generate audio summary playback")
-@click.option("--question", "-q", type=str, multiple=True,
-              help="Questions to ask about the meeting (repeatable)")
+@click.option("--output-dir", "-o", type=click.Path(), default="./output", help="Output directory")
+@click.option("--speakers", "-s", type=int, default=None, help="Expected number of speakers")
+@click.option("--language", "-l", type=str, default=None, help="Language code (e.g., en, fr, de)")
+@click.option("--no-llm", is_flag=True, help="Skip GPT-4 analysis (transcript only)")
+@click.option("--tts", is_flag=True, help="Generate audio summary playback")
+@click.option(
+    "--question",
+    "-q",
+    type=str,
+    multiple=True,
+    help="Questions to ask about the meeting (repeatable)",
+)
 @click.pass_context
 def process(
     ctx: click.Context,
@@ -80,8 +85,7 @@ def process(
 
 @cli.command()
 @click.argument("transcript_file", type=click.Path(exists=True))
-@click.option("--question", "-q", type=str, required=True,
-              help="Question to ask about the meeting")
+@click.option("--question", "-q", type=str, required=True, help="Question to ask about the meeting")
 @click.pass_context
 def ask(ctx: click.Context, transcript_file: str, question: str) -> None:
     """Ask a question about a previously processed meeting."""
@@ -119,8 +123,8 @@ def summarize(ctx: click.Context, transcript_file: str) -> None:
     else:
         transcript = Transcript.model_validate(raw)
 
-    from .understanding.summarizer import MeetingSummarizer
     from .understanding.extractor import MeetingExtractor
+    from .understanding.summarizer import MeetingSummarizer
 
     llm = LLMClient(config.llm)
     extractor = MeetingExtractor(llm)
@@ -207,8 +211,11 @@ def _display_actions(action_items) -> None:
     table.add_column("Priority")
     for a in action_items:
         table.add_row(
-            str(a.id), a.task, a.assignee or "-",
-            a.deadline or "-", a.priority.value,
+            str(a.id),
+            a.task,
+            a.assignee or "-",
+            a.deadline or "-",
+            a.priority.value,
         )
     console.print(table)
 
