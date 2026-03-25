@@ -6,7 +6,6 @@ Turn pre-recorded meeting audio into structured knowledge: speaker-attributed tr
 
 - [Architecture Overview](#architecture-overview)
 - [Pipeline Stages](#pipeline-stages)
-- [Project Structure](#project-structure)
 - [Component Reference](#component-reference)
   - [Audio Loading](#1-audio-loading)
   - [Voice Activity Detection](#2-voice-activity-detection-vad)
@@ -74,69 +73,6 @@ Audio File (.wav, .mp3, .flac, .ogg, .m4a, .wma, .webm)
 | 10. Q&A | `understanding/qa.py` | GPT-4 | Answers questions grounded in the transcript |
 | 11. Output | `output/` | — | Writes JSON and Markdown reports |
 | 12. TTS | `tts/speaker.py` | edge-tts | Narrates summary as MP3 audio |
-
----
-
-## Project Structure
-
-```
-meeting_intelligence_agent/
-├── pyproject.toml                          # Package metadata and dependencies
-├── config.yaml                             # Default pipeline configuration
-├── .env.example                            # Template for API keys
-│
-├── src/meeting_intelligence/
-│   ├── __init__.py                         # Package version
-│   ├── cli.py                              # Click CLI: process, ask, summarize
-│   ├── pipeline.py                         # Pipeline orchestrator (lazy init, progress)
-│   ├── config.py                           # YAML + env config loading
-│   │
-│   ├── models/                             # Pydantic data models (shared contracts)
-│   │   ├── audio.py                        #   AudioData, AudioMetadata, SpeechSegment
-│   │   ├── transcript.py                   #   Word, TranscriptSegment, Transcript, TopicBlock
-│   │   └── meeting.py                      #   Decision, ActionItem, MeetingSummary, MeetingResult
-│   │
-│   ├── audio/                              # Audio ingestion
-│   │   ├── loader.py                       #   Load + normalize any audio format
-│   │   └── preprocessor.py                 #   Silero VAD speech detection
-│   │
-│   ├── diarization/                        # Speaker identification
-│   │   └── diarizer.py                     #   pyannote.audio speaker diarization
-│   │
-│   ├── transcription/                      # Speech-to-text
-│   │   ├── asr.py                          #   faster-whisper ASR engine
-│   │   └── assembler.py                    #   Merge diarization + ASR (temporal overlap)
-│   │
-│   ├── postprocessing/                     # Text cleanup
-│   │   ├── cleaner.py                      #   Disfluency removal, punctuation normalization
-│   │   └── segmenter.py                    #   LLM-based topic segmentation
-│   │
-│   ├── understanding/                      # LLM-powered analysis
-│   │   ├── llm_client.py                   #   OpenAI GPT-4 wrapper (structured output, chunking)
-│   │   ├── extractor.py                    #   Decision + action item extraction
-│   │   ├── summarizer.py                   #   Meeting summary generation
-│   │   └── qa.py                           #   Q&A over transcript
-│   │
-│   ├── tts/                                # Audio output
-│   │   └── speaker.py                      #   edge-tts summary narration
-│   │
-│   ├── output/                             # Report generation
-│   │   ├── json_writer.py                  #   Full JSON output
-│   │   └── markdown_writer.py              #   Markdown report with tables
-│   │
-│   └── utils/                              # Shared utilities
-│       ├── logging.py                      #   Rich-powered structured logging
-│       ├── timing.py                       #   Performance timing decorators
-│       └── progress.py                     #   Pipeline stage progress callbacks
-│
-└── tests/
-    ├── conftest.py                         # Shared fixtures (sample audio, transcripts)
-    ├── fixtures/                            # Test audio files
-    ├── test_assembler.py                   # Transcript assembly tests (6 tests)
-    ├── test_cleaner.py                     # Text cleaning tests (6 tests)
-    ├── test_config.py                      # Configuration loading tests (3 tests)
-    └── test_output.py                      # JSON/Markdown writer tests (4 tests)
-```
 
 ---
 
@@ -589,26 +525,4 @@ pytest -m "not integration"
 # Run only fast pure-logic tests (no mocking needed)
 pytest tests/test_models.py tests/test_cleaner.py tests/test_assembler.py tests/test_config.py -v
 ```
-
-### Test Suite (155 tests)
-
-| Test File | Tests | Component | Mocking |
-|-----------|-------|-----------|---------|
-| `test_models.py` | 22 | All Pydantic data models (audio, transcript, meeting) | None (pure logic) |
-| `test_loader.py` | 11 | Audio loading, validation, format normalization | `pydub.AudioSegment` |
-| `test_preprocessor.py` | 8 | Silero VAD speech detection | `torch.hub.load`, VAD utils |
-| `test_diarizer.py` | 9 | pyannote speaker diarization | `pyannote.Pipeline`, `torch` |
-| `test_asr.py` | 11 | faster-whisper ASR engine | `WhisperModel`, transcribe generator |
-| `test_assembler.py` | 6 | Transcript assembly (temporal overlap merge) | None (pure logic) |
-| `test_cleaner.py` | 6 | Disfluency removal, text normalization | None (pure logic) |
-| `test_segmenter.py` | 9 | LLM topic segmentation + time-based fallback | `LLMClient` |
-| `test_llm_client.py` | 9 | OpenAI client, structured output, token chunking | `openai.OpenAI`, `tiktoken` |
-| `test_extractor.py` | 8 | Decision + action item extraction | `LLMClient` |
-| `test_summarizer.py` | 9 | Summary generation (single-pass + map-reduce) | `LLMClient` |
-| `test_qa.py` | 8 | Q&A over transcripts | `LLMClient` |
-| `test_tts.py` | 9 | edge-tts narration | `edge_tts.Communicate` |
-| `test_pipeline.py` | 10 | Pipeline orchestrator (lazy init, skip_llm, Q&A) | All pipeline components |
-| `test_output.py` | 4 | JSON + Markdown writers | None (uses `tmp_path`) |
-| `test_config.py` | 3 | Configuration loading from YAML + env | None (uses `tmp_path`) |
-
 ---
